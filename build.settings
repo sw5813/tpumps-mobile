@@ -1,0 +1,32 @@
+settings =
+{
+	orientation =
+ 	{
+		default = "landscapeRight",
+		supported =
+ 		{
+			"landscapeLeft",
+			"landscapeRight"
+		},
+	},
+
+	iphone =
+	{
+		
+		plist =
+		{
+			CFBundleDisplayName = "Tpumps",
+            CFBundleName = "Tpumps",
+            CFBundleIconFile = "Icon.png",
+            CFBundleIconFiles = {
+                    "Icon.png" , 
+                    "Icon@2x.png" , 
+                    "Icon-72.png" , 
+            },
+		},
+		android =
+		{
+			versionCode = "1",
+		}
+	},
+}
