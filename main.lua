@@ -1,8 +1,30 @@
 display.setStatusBar(display.HiddenStatusBar)
 
 -----------------------------------------------
+--*** Open the database ***
+-----------------------------------------------
+require "sqlite3"
+local data_path = system.pathForFile("data.db", system.DocumentsDirectory);
+db = sqlite3.open(data_path);
+local sql= "CREATE TABLE IF NOT EXISTS flavors (name, color, font);"
+db:exec(sql);
+
+-----------------------------------------------
+--*** Tpumps ***
+-----------------------------------------------
+local flavors = {"STRAWBERRY", "MANGO", "PASSION", "PEACH", "GREEN APPLE AND HAM"}
+local colors = {"red", "orange"} --rgb picker
+local fonts = {"Arial", "Helvetica", "PTMono-Bold", "PTSans-Bold", "PTSerif-Bold", "Verdana", "Impact", "MyriadPro-BoldCond", "Tahoma Bold", "Trebuchet MS"}
+
+-----------------------------------------------
+--*** Show form for adding a flavor ***
+-----------------------------------------------
+
+
+-----------------------------------------------
 --*** Set up our variables and group ***
 -----------------------------------------------
+local staticGroup = display.newGroup()
 local slotsGroup = display.newGroup()
 local machineGroup = display.newGroup()
 
@@ -32,6 +54,9 @@ local spinData3 = {name="spin3", frames={ 4, 1, 3, 2}, time=250, loopCount = 5}
 -----------------------------------------------
 --*** Set up our text objects and machine ***
 -----------------------------------------------
+local whiterect = display.newRect( _W*0.5, _H*0.5, _W, _W/1.86 )
+staticGroup:insert( whiterect )
+
 local machine = display.newImageRect("images/tpumpsMachine.png",_W,_H)
 machine.x = _W*0.5; machine.y = _H*0.5;
 machineGroup:insert(machine)
@@ -52,27 +77,60 @@ local function createSlots()
 		child = nil
 	end
 
+	local numFlavors = table.maxn( flavors )
+	local numFonts = table.maxn( flavors )
+
 	--Use a loop to make them easily for us :)
 	for i=1, 3 do
-		local randomImage = mr(1,5)
-		slotColumn1[i] = display.newImageRect("images/slot_"..randomImage..".jpg", _W/3, _H/3)
-		slotColumn1[i].x = _W/2 - _W/3
-		slotColumn1[i].y = _H*0.165 + (_H/3 *(i-1))  
-		slotColumn1[i].slot = randomImage
+		local randomFlavor = mr(1,numFlavors)
+		local randomFont = mr(1,numFonts)
+		local options1 = {
+			text = flavors[randomFlavor],
+			x = _W/2 - _W/3 + 5,
+			y = _H*0.29 + (_H/3 *(i-1)),
+			width = _W/3,
+			height = _H/3,
+			font = fonts[randomFont],
+			fontSize = 14,
+			align = "center"
+		}
+		slotColumn1[i] = display.newText( options1 )
+		slotColumn1[i]:setFillColor( 1, 0, 0 )
+		slotColumn1[i].slot = randomFlavor
 		slotsGroup:insert(slotColumn1[i])
 
-		randomImage = mr(1,5)
-		slotColumn2[i] = display.newImageRect("images/slot_"..randomImage..".jpg", _W/3, _H/3)
-		slotColumn2[i].x = _W/2
-		slotColumn2[i].y = slotColumn1[i].y
-		slotColumn2[i].slot = randomImage
+		randomFlavor = mr(1,numFlavors)
+		randomFont = mr(1,numFonts)
+		local options2 = {
+			text = flavors[randomFlavor],
+			x = _W/2,
+			y = slotColumn1[i].y,
+			width = _W/3,
+			height = _H/3,
+			font = fonts[randomFont],
+			fontSize = 14,
+			align = "center"
+		}
+		slotColumn2[i] = display.newText( options2 )
+		slotColumn2[i]:setFillColor( 0, 1, 0 )
+		slotColumn2[i].slot = randomFlavor
 		slotsGroup:insert(slotColumn2[i])
 
-		randomImage = mr(1,5)
-		slotColumn3[i] = display.newImageRect("images/slot_"..randomImage..".jpg", _W/3, _H/3)
-		slotColumn3[i].x = slotColumn2[1].x + _W/3
-		slotColumn3[i].y = slotColumn1[i].y 
-		slotColumn3[i].slot = randomImage
+		randomFlavor = mr(1,numFlavors)
+		randomFont = mr(1,numFonts)
+		local options3 = {
+			text = flavors[randomFlavor],
+			x = slotColumn2[1].x + _W/3 - 5,
+			y = slotColumn1[i].y,
+			width = _W/3,
+			height = _H/3,
+			font = fonts[randomFont],
+			fontSize = 14,
+			align = "center"
+		}
+		slotColumn3[i] = display.newText( options3 )
+		slotColumn3[i]:setFillColor( 0, 0, 1 )
+		slotColumn3[i].slot = randomFlavor
 		slotsGroup:insert(slotColumn3[i])
 	end
 
@@ -97,15 +155,15 @@ local function spinNow( event )
 		end
 
 		spin1 = display.newSprite( spinSheet, spinData1 )
-		spin1.x = slotColumn1[2].x; spin1.y = slotColumn1[2].y
+		spin1.x = slotColumn1[2].x; spin1.y = slotColumn1[2].y - _W/10 --hacky but works
 		slotsGroup:insert(spin1)
 
 		spin2 = display.newSprite( spinSheet, spinData2 )
-		spin2.x = slotColumn2[2].x; spin2.y = slotColumn2[2].y
+		spin2.x = slotColumn2[2].x; spin2.y = slotColumn2[2].y - _W/10
 		slotsGroup:insert(spin2)
 
 		spin3 = display.newSprite( spinSheet, spinData3 )
-		spin3.x = slotColumn3[2].x; spin3.y = slotColumn3[2].y
+		spin3.x = slotColumn3[2].x; spin3.y = slotColumn3[2].y - _W/10
 		slotsGroup:insert(spin3)
 
 		spin1:addEventListener( "sprite", spriteListener )
@@ -113,12 +171,6 @@ local function spinNow( event )
 	end
 	return true
 end
---[[
-local spinBtn = display.newRect(0,0,140,50)
-spinBtn.x = _W-80; spinBtn.y = _H*0.82; spinBtn.alpha = 0.01
-spinBtn:addEventListener("touch", spinNow)
-machineGroup:insert(spinBtn)
---]]
 
 display.currentStage:addEventListener( "touch", spinNow )
 
